@@ -1,0 +1,79 @@
+npx react-native init BreakManager
+cd BreakManager
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList } from 'react-native';
+
+const App = () => {
+  const [breaks, setBreaks] = useState([]);
+  const [onBreak, setOnBreak] = useState({});
+  const [maxBreaks, setMaxBreaks] = useState(2); // Número máximo de empleados en descanso simultáneamente
+
+  const startBreak = (employeeId) => {
+    if (Object.keys(onBreak).length < maxBreaks) {
+      const startTime = new Date();
+      setOnBreak({ ...onBreak, [employeeId]: startTime });
+    } else {
+      alert('Número máximo de empleados en descanso alcanzado.');
+    }
+  };
+
+  const endBreak = (employeeId) => {
+    const endTime = new Date();
+    const startTime = onBreak[employeeId];
+    if (startTime) {
+      setBreaks([...breaks, { employeeId, startTime, endTime }]);
+      const updatedOnBreak = { ...onBreak };
+      delete updatedOnBreak[employeeId];
+      setOnBreak(updatedOnBreak);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      <Text>{`Empleado ID: ${item.employeeId}`}</Text>
+      <Text>{`Inicio: ${item.startTime.toLocaleString()}`}</Text>
+      <Text>{`Fin: ${item.endTime.toLocaleString()}`}</Text>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Gestión de Descansos</Text>
+      <View style={styles.buttonContainer}>
+        <Button title="Iniciar Descanso" onPress={() => startBreak(1)} />
+        <Button title="Finalizar Descanso" onPress={() => endBreak(1)} />
+      </View>
+      <FlatList
+        data={breaks}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  item: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+});
+
+export default App;
